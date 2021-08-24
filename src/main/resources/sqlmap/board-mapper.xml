@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="board.mapper">
+
+
+	<!-- 공지글에 대한 신규 답글 등록 -->
+	<insert id="cu_reply_insert">
+	<![CDATA[   	
+		{
+			call declare 
+			begin	       
+				update tbl_board set step = step + 1 where root = #{root} and step > #{step};
+				
+				insert into tbl_board (board_num, board_title, board_content, board_writer, filename, filepath, root, step, indent, commcode, subcode)
+				values (seq_board_num.nextval, #{board_title}, #{board_content}, #{board_writer},
+							 #{filename, jdbcType=VARCHAR}, #{filepath, jdbcType=VARCHAR},
+							 #{root}, #{step}+1, #{indent}+1, '4', '4' );
+			end
+		}
+	]]>
+	</insert>
+
+
+
+	<!-- 1:1 문의 해당 글 삭제 -->
+	<delete id="cu_delete">
+		delete from tbl_board
+		where board_num = #{board_num}
+	</delete>
+	
+	<!-- 1:1 문의 해당 글 수정 -->
+	<update id="cu_update">
+		update tbl_board set board_title = #{board_title},
+			board_content = #{board_content}, type=#{type}, 
+					filename = #{filename, jdbcType=VARCHAR}, 
+					filepath = #{filepath, jdbcType=VARCHAR}
+		where board_num = #{board_num}
+	</update>
+	
+	<!-- 상세화면 조회 전 조회수 증가(변경) -->
+	<update id="cu_read">
+		update tbl_board set readcnt = readcnt + 1
+		where board_num = #{board_num}
+	</update>
+
+	<!-- 1:1 문의 해당 글 상세 조회 -->
+	<select id="cu_detail" resultType="contactus.ContactUsVO">
+		select b.*, (select name from user_member where user_member.id=b.BOARD_WRITER) name 
+		from tbl_board b
+		where subcode = '4'
+		and board_num = #{board_num}
+	</select>
+
+	<!-- 1:1 문의 신규 저장 -->
+	<insert id="cu_insert">
+		insert into tbl_board (board_num, root, board_title, board_content, board_writer, type, subcode, filename, filepath)
+		values (seq_board_num.nextval, seq_board_num.currval, #{board_title}, #{board_content}, #{board_writer}, #{type}, 4, #{filename, jdbcType=VARCHAR}, #{filepath, jdbcType=VARCHAR})
+	</insert>
+	
+	
+	<sql id ='where_search'>
+		<!-- 제목에 테스트 문자가 있는 것을 조회 한다면 where title like '테스트' -->
+		<if test="search == 'title' or search == 'content' "> 
+			where ${page.search} like '%'||#{page.keyword}||'%'
+		</if>
+		<if test="search == 'writer' ">
+			where board_writer in (select id from user_member where name like '%'||#{page.keyword}||'%' )		
+		</if>
+		
+		<if test="search == 'all' "> 
+			where board_title like '%'||#{page.keyword}||'%'
+			or board_content like '%'||#{page.keyword}||'%'
+			or board_writer in (select id from user_member where name like '%'||#{page.keyword}||'%' )
+		</if>
+		<if test="admin eq '1'">
+			<if test="search==null or search==''">where </if>
+			<if test="search!=null and search!=''">and </if>
+			board_writer = #{userid}
+		</if>
+	</sql>
+	
+<!-- subcode 가 1 이면 where 사용 -->
+	<sql id ='and_id'>
+		<if test="admin eq '1'">
+			and board_writer = #{userid}
+		</if>
+	</sql>  
+	
+	
+	<!-- 전체 게시글 수 조회 -->
+	<select id="cu_totalList" resultType="integer">
+		select count(*) from tbl_board <include refid="where_search" />
+	</select>
+	
+	<!-- 페이지 처리된 글 목록 조회 -->
+
+ 	<select id="cu_list" resultType="contactus.ContactUsVO">
+		select * 
+		from ( select rownum no, b.*, (select name from user_member where user_member.id = board_writer) name
+				from (select * from tbl_board <include refid="where_search" />
+				order by root, step desc) b
+				order by no desc)
+		where subcode = '4'
+		and no between #{page.beginList} and #{page.endList}
+	</select>
+
+<!-- 	<select id="cu_list" resultType="contactus.ContactUsVO">
+		select * 
+		from ( select rownum no, b.*, (select name from user_member where user_member.id = board_writer) name
+				from (select * from tbl_board <include refid="where_search" />
+				order by root, step desc) b
+				order by no desc)
+		where subcode = '4  '
+		and no between #{beginList} and #{endList}
+		<include refid="and_id" />
+	</select> -->
+	<!-- 1:1 문의 전체 글 조회
+	<select id="cu_list" resultType="contactus.ContactUsVO">
+		select rownum no, b.* 
+		from (select * from tbl_board order by board_num) b
+		where subcode = '4  '
+	</select> -->
+	
+</mapper>

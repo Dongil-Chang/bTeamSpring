@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="reser.mapper">
+
+	<!-- 예약내역 추가 -->
+	<insert id="reser_insert" >
+		insert into tbl_product (product_id, product_type, product_cost, booking_member, booking_start, booking_end)
+		values #{product_id},#{product_type}
+				,#{booking_member},#{booking_start},#{booking_end}
+	</insert>
+	
+	<!-- 관리자용 예약리스트 -->
+	<select id="mg_reserlist" resultType="reservation.ReserVO">
+		select booking_member, product_id, product_type, product_id_used, booking_start, booking_end
+		from tbl_product
+	</select>
+		
+	<!-- 회원용 예약리스트 -->
+	<select id="reserlist" resultType="reservation.ReserVO">
+		select product_id, product_type, booking_start, booking_end
+		from tbl_product
+	</select>
+</mapper> 

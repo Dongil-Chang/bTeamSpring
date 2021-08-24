@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="faq.mapper">
+
+	<sql id ='where_search'>
+		<!-- 제목에 테스트 문자가 있는 것을 조회 한다면 where title like '테스트' -->
+		<if test="search == 'title' or search == 'content'"> 
+			where ${search} like '%'||#{keyword}||'%'
+		</if>
+	
+		<if test="search == 'all' "> 
+			where title like '%'||#{keyword}||'%'
+			or content like '%'||#{keyword}||'%'
+		</if>
+	</sql>
+
+
+		<!-- FAQ 글 삭제 -->
+	<delete id="delete">
+		delete from tbl_faq
+		where faq_code = #{faq_code}
+	</delete>
+
+	<!-- FAQ 글 수정 -->
+	<update id="update">
+		update tbl_faq set faq_title=#{faq_title}, faq_content=#{faq_content}, 
+				faq_regist_date = default
+		where faq_code = #{faq_code}
+	</update>
+
+	<!-- FAQ 상세 정보 조회 -->
+	<select id="detail" resultType="faq.FaqVO">
+		select * from tbl_faq
+		where faq_code = #{faq_code}
+	</select>
+
+	<!-- FAQ 신규 글 저장 -->
+	<insert id="insert">
+		insert into tbl_faq
+		values (seq_faq_code.nextVal, #{faq_title}, #{faq_content}, default)
+	</insert>
+
+	<!-- FAQ 전체 글 수 조회 -->
+	<select id="totalList" resultType="integer">
+		select count(*) from tbl_faq <include refid="where_search" />
+	</select>
+
+	<!-- FAQ 목록 조회 -->
+	<select id="list" resultType="faq.FaqVO">
+		select * 
+    	from (select rownum no, f.*
+            from (select * from tbl_faq <include refid="where_search" />
+					order by faq_code) f
+            order by no desc) f
+		where no between #{beginList} and #{endList}
+	</select>
+
+</mapper>

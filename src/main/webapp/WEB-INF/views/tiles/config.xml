@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- tiles 문서로 지정하는 방법  -->
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+       
+<tiles-definitions>
+  <definition name="layout" template="/WEB-INF/views/tiles/layout.jsp">
+    <put-attribute name="header" value="/WEB-INF/views/include/header.jsp" />
+    <put-attribute name="footer" value="/WEB-INF/views/include/footer.jsp" />
+  </definition>
+  <definition name="layout_nav" template="/WEB-INF/views/tiles/layout_nav.jsp">
+    <put-attribute name="header" value="/WEB-INF/views/include/header.jsp" />
+<!--     <put-attribute name="aside" value="/WEB-INF/views/nav/aside.jsp" />  20:45 주석-->
+    <put-attribute name="footer" value="/WEB-INF/views/include/footer.jsp" />
+  </definition>
+  
+  <!--
+  emplyee/list.jsp / customer/detail.jsp, notice/modify.jsp
+    -->
+  
+   
+  <definition name="error/*" template="/WEB-INF/views/tiles/default.jsp">
+	<put-attribute name="content" value="/WEB-INF/views/error/{1}.jsp"/>
+  </definition>
+  
+<!--   <definition name="nav/*" extends="layout_nav">    name="*" -> {1} 
+    <put-attribute name="content" value="/WEB-INF/views/nav/{1}.jsp" />    
+  </definition> -->
+  
+ <!--  <definition name="*" extends="layout">    name="*" -> {1} 
+    <put-attribute name="content" value="/WEB-INF/views/{1}.jsp" />
+  </definition> -->
+
+  <!-- <definition name="*" extends="layout_nav">    name="*" -> {1} 
+    <put-attribute name="content" value="/WEB-INF/views/{1}.jsp" />
+  </definition> -->
+  
+  <!-- extends="layout" 위 지정한 "layout" 을 상속함 -->
+  <definition name="*/*" extends="layout_nav">    <!-- name="*/*" -> {1}/{2}  -->
+    <put-attribute name="aside" value="/WEB-INF/views/{1}/{1}.jsp" /> <!-- 20:45 추가 -->
+    <put-attribute name="content" value="/WEB-INF/views/{1}/{2}.jsp" />
+  </definition>
+  
+  <!-- extends="layout" 위 지정한 "layout" 을 상속함 -->
+<!--   <definition name="*/*" extends="layout">    name="*/*" -> {1}/{2} 
+    <put-attribute name="content" value="/WEB-INF/views/{1}/{2}.jsp" />
+  </definition> -->
+  
+  <definition name="member/login" template="/WEB-INF/views/tiles/default.jsp">
+  	<put-attribute name="content" value="/WEB-INF/views/member/login.jsp" />
+  </definition>
+  
+  <definition name="*" extends = "layout">
+  	<put-attribute name="content" value="/WEB-INF/views/home.jsp" />
+  </definition>
+  
+  
+</tiles-definitions>

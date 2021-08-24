@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="iot.mapper">
+
+	<insert id="temhumInsert">
+		insert into tbl_iot (id, temperature, humidity, door_values, product_code, press)
+		values ( #{id, jdbcType=VARCHAR}, #{temp, jdbcType=VARCHAR}, #{hum, jdbcType=VARCHAR}
+				, #{door_values,  jdbcType=VARCHAR}, #{product_code, jdbcType=VARCHAR}, #{b_press, jdbcType=VARCHAR} )
+	</insert>
+
+	<select id="values" resultType="iot.IoTVO">
+		select * from (select * from tbl_iot order by rownum desc) 
+		where rownum = 1
+		and id = #{id}
+		
+<!-- 		SELECT * FROM (SELECT * FROM tbl_iot ORDER BY ROWNUM DESC) i, user_member u -->
+<!-- 		where i.id = u.id -->
+<!-- 		and ROWNUM = 1 -->
+<!-- 		and u.id = #{id} -->
+	</select>
+</mapper>

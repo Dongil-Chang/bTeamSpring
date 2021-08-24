@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="member.mapper">
+
+	<!-- 안드로이드 회원목록 조회 (관리자) -->
+	<select id="mg_memberlist" resultType="member.MemberVO">
+		select * from user_member
+	</select>
+	
+	<select id="login" resultType="member.MemberVO">
+		select * from user_member 
+		where id = #{id} and pw = #{pw}
+	</select>
+	
+	<insert id="join_insert">
+		insert into user_member (member_code, id, pw, name, email, tel, subcode)
+		values (member_code_seq.nextval, #{id}, #{pw}, #{name}, #{email}, #{tel}, 1)
+	</insert>
+	
+	<select id="pwchk" resultType="member.MemberVO">
+		select * from user_member where pw = #{pw}
+	</select>
+	
+<!-- 안드로이드 idchk에서 사용 
+	<select id="idchk" resultType="member.MemberVO">
+		select * from user_member where id = #{id}
+	</select> -->
+	
+	<select id="idchk" resultType="integer">
+		select count(*) from user_member
+		where id = #{id}
+	</select>
+	
+	<delete id="delete">
+		delete from user_member
+		where id = #{id}
+	</delete>
+	
+	<!-- 회원정보 수정 -->
+	<update id="account_update">
+		update user_member
+		set pw = #{pw}, name = #{name}, email = #{email}, addr = #{addr, jdbcType=VARCHAR}, tel = #{tel}, birth = #{birth, jdbcType=VARCHAR}
+		where id = #{id}
+	</update>
+	
+	<!-- 이용약관 목록 조회 -->
+	<select id="provision_list" resultType="manager.ProvisionVO">
+		select * from tbl_provision
+		where provision_nm like '%' || '정보' || '%'
+	</select>
+	
+	<!-- 이용약관 목록 조회 -->
+	<select id="join_service_list" resultType="manager.ProvisionVO">
+		select * from tbl_provision
+		where provision_nm like '%' || '이용약관' || '%'
+	</select>
+	
+	
+	<update id="social_update">
+		update user_member set name = #{name}, 
+		where ${social_type} = #{social_email}
+	</update>
+
+	<insert id="social_insert">
+		insert into user_member (member_code, id, name, ${social_type}, subcode)
+		values (member_code_seq.nextval, #{id}, #{name}, #{social_email}, 1)
+	</insert>	
+
+	<!-- social_email 존재 여부 조회 -->
+	<select id="social_email" resultType="integer">
+		select count(*) from user_member 
+		where ${social_type} = #{social_email}
+		<!-- ${social_type} 내 들어있는 동적 데이터 (즉, 네이버, 카카오) 를 불러옴. -->
+	</select>
+	
+	
+	
+</mapper>
